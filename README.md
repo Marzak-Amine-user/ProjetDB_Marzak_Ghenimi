@@ -3,7 +3,7 @@
 ## Membres du groupe
 
 - Mohammed Amine Marzak
-- Redha Ghenimi
+- Ridha Ghenimi
 
 ---
 
