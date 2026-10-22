@@ -558,3 +558,11 @@ L'image du modèle est disponible dans le dépôt du projet.
 
 Le fichier source Looping est également conservé afin de permettre la modification du modèle.
 
+# Partie 2 — MLD, MPD et exploitation
+
+## Modèle Logique de Données
+
+Le MLD a été obtenu automatiquement à partir du MCD avec Looping.
+
+![MLD](mld.png)
+
