@@ -109,7 +109,4 @@ ALTER TABLE evaluer
 ADD CONSTRAINT chk_evaluation_note
 CHECK (note BETWEEN 1 AND 5);
 
--- Un utilisateur ne peut pas s'évaluer lui-même
-ALTER TABLE evaluer
-ADD CONSTRAINT chk_evaluation_utilisateurs
-CHECK (id_utilisateurs_auteur <> id_utilisateurs_evalue);
+
