@@ -154,22 +154,22 @@ INNER JOIN utilisateurs u
 ORDER BY t.date_depart;
 
 
--- Q13 : Afficher les réservations avec le nom du passager
--- et les villes de départ et d'arrivée.
+-- Q13 : Afficher les réservations confirmées pour les trajets
+-- partant de Paris avec le nom du passager.
 
-SELECT r.id_trajets,
-       u.nom,
+SELECT u.nom,
        u.prenom,
        t.ville_depart,
        t.ville_arrivee,
-       r.nombre_places_reservees,
-       r.statut_reservation
+       r.nombre_places_reservees
 FROM reserver r
 INNER JOIN utilisateurs u
     ON r.id_utilisateurs = u.id_utilisateurs
 INNER JOIN trajets t
     ON r.id_trajets = t.id_trajets
-ORDER BY r.id_trajets;
+WHERE r.statut_reservation = 'confirmee'
+  AND t.ville_depart = 'Paris'
+ORDER BY u.nom;
 
 
 -- Q14 : Afficher tous les utilisateurs, même ceux qui n'ont
