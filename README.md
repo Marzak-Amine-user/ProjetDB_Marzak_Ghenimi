@@ -566,3 +566,192 @@ Le MLD a été obtenu automatiquement à partir du MCD avec Looping.
 
 ![MLD](mld.png)
 
+# Scénario d'utilisation
+
+La base de données est utilisée par un analyste chargé de suivre l'activité de la plateforme de covoiturage.
+
+Son objectif est d'étudier l'utilisation du service afin d'identifier les trajets et les villes les plus utilisés, de suivre les réservations et d'analyser la qualité du service proposée par les conducteurs.
+
+Il doit notamment pouvoir extraire :
+
+- les trajets proposés et leur statut ;
+- les villes de départ et d'arrivée ;
+- les prix pratiqués ;
+- le nombre de réservations par trajet ;
+- les utilisateurs ayant ou non effectué des réservations ;
+- les véhicules et leurs propriétaires ;
+- les conducteurs associés aux trajets ;
+- les notes moyennes reçues par les utilisateurs ;
+- les trajets possédant ou non des étapes intermédiaires.
+
+Les requêtes permettant d'obtenir ces informations sont regroupées dans le fichier `4_interrogation.sql`.
+
+---
+
+# Étude d'un plan d'exécution
+
+## Requête étudiée
+
+Nous étudions la requête permettant d'afficher les réservations confirmées concernant les trajets partant de Paris, avec le nom du passager.
+
+```sql
+SELECT u.nom,
+       u.prenom,
+       t.ville_depart,
+       t.ville_arrivee,
+       r.nombre_places_reservees
+FROM reserver r
+INNER JOIN utilisateurs u
+    ON r.id_utilisateurs = u.id_utilisateurs
+INNER JOIN trajets t
+    ON r.id_trajets = t.id_trajets
+WHERE r.statut_reservation = 'confirmee'
+  AND t.ville_depart = 'Paris';
+```
+
+Cette requête utilise plusieurs opérateurs de l'algèbre relationnelle :
+
+- des sélections `σ` ;
+- des jointures `⋈` ;
+- une projection `π`.
+
+Avec notre jeu de données :
+
+- `UTILISATEURS` contient 15 lignes ;
+- `TRAJETS` contient 10 lignes ;
+- `RESERVER` contient 23 lignes ;
+- 20 réservations sont confirmées ;
+- 4 trajets partent de Paris ;
+- 9 réservations confirmées concernent des trajets partant de Paris.
+
+## Plan d'exécution 1 — non optimisé
+
+Dans ce premier plan, les jointures sont réalisées avant les sélections.
+
+```mermaid
+flowchart BT
+    R["RESERVER<br/>23 lignes"]
+    U["UTILISATEURS<br/>15 lignes"]
+    T["TRAJETS<br/>10 lignes"]
+
+    J1["Jointure RESERVER ⋈ UTILISATEURS<br/>23 lignes"]
+    J2["Jointure avec TRAJETS<br/>23 lignes"]
+    S["Sélection : confirmé ET départ = Paris<br/>9 lignes"]
+    P["Projection finale<br/>9 lignes"]
+
+    R --> J1
+    U --> J1
+    J1 --> J2
+    T --> J2
+    J2 --> S
+    S --> P
+```
+
+### Calcul du coût
+
+Première jointure :
+
+`23 × 15 = 345 instructions`
+
+Le résultat contient 23 lignes.
+
+Deuxième jointure :
+
+`23 × 10 = 230 instructions`
+
+Le résultat contient toujours 23 lignes.
+
+Sélection :
+
+`23 instructions`
+
+Il reste 9 lignes.
+
+Projection :
+
+`9 instructions`
+
+Coût total :
+
+`345 + 230 + 23 + 9 = 607 instructions`
+
+---
+
+## Plan d'exécution 2 — optimisé
+
+Dans le deuxième plan, les sélections sont réalisées le plus tôt possible afin de réduire la taille des relations avant les jointures.
+
+```mermaid
+flowchart BT
+    R["RESERVER<br/>23 lignes"]
+    T["TRAJETS<br/>10 lignes"]
+    U["UTILISATEURS<br/>15 lignes"]
+
+    SR["Sélection statut = confirmé<br/>20 lignes"]
+    ST["Sélection départ = Paris<br/>4 lignes"]
+    J1["Jointure réservations / trajets<br/>9 lignes"]
+    J2["Jointure avec UTILISATEURS<br/>9 lignes"]
+    P["Projection finale<br/>9 lignes"]
+
+    R --> SR
+    T --> ST
+    SR --> J1
+    ST --> J1
+    J1 --> J2
+    U --> J2
+    J2 --> P
+```
+
+### Calcul du coût
+
+Sélection des réservations confirmées :
+
+`23 instructions`
+
+Il reste 20 lignes.
+
+Sélection des trajets partant de Paris :
+
+`10 instructions`
+
+Il reste 4 lignes.
+
+Première jointure :
+
+`20 × 4 = 80 instructions`
+
+Le résultat contient 9 lignes.
+
+Deuxième jointure :
+
+`9 × 15 = 135 instructions`
+
+Le résultat contient 9 lignes.
+
+Projection :
+
+`9 instructions`
+
+Coût total :
+
+`23 + 10 + 80 + 135 + 9 = 257 instructions`
+
+---
+
+## Comparaison
+
+Le premier plan nécessite :
+
+`607 instructions`
+
+Le deuxième plan nécessite :
+
+`257 instructions`
+
+Le deuxième plan économise donc :
+
+`607 - 257 = 350 instructions`
+
+Il réduit le nombre d'instructions d'environ 58 %.
+
+Le deuxième arbre est donc plus efficace. Le principe d'optimisation consiste à effectuer les sélections le plus tôt possible afin de diminuer le nombre de lignes utilisées par les jointures.
