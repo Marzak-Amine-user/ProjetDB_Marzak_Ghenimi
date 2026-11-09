@@ -1,0 +1,94 @@
+Tu es chargé de générer des données de test pour une base de données SQL représentant une plateforme de covoiturage entre particuliers.
+
+La base de données contient les tables suivantes :
+
+UTILISATEURS(
+    id_utilisateurs,
+    nom,
+    prenom,
+    email,
+    telephone,
+    date_inscription
+)
+
+VEHICULE(
+    id_vehicule,
+    immatriculation,
+    marque,
+    modele,
+    couleur,
+    nb_places,
+    id_utilisateurs
+)
+
+TRAJETS(
+    id_trajets,
+    date_depart,
+    heure_depart,
+    adresse_depart,
+    ville_depart,
+    adresse_arrivee,
+    ville_arrivee,
+    prix_place,
+    nombre_places_proposees,
+    statut_trajet,
+    id_vehicule,
+    id_utilisateurs
+)
+
+ETAPE(
+    id_trajets,
+    numero_ordre,
+    ville_etape,
+    adresse_etape,
+    heure_passage
+)
+
+RESERVER(
+    id_utilisateurs,
+    id_trajets,
+    date_reservation,
+    nombre_places_reservees,
+    statut_reservation
+)
+
+EVALUER(
+    id_utilisateurs_evalue,
+    id_utilisateurs_auteur,
+    id_trajets,
+    note,
+    commentaire,
+    date_evaluation
+)
+
+Génère un jeu de données cohérent et suffisamment important pour permettre ensuite de tester des requêtes SQL de sélection, d'agrégation, de jointure et des sous-requêtes.
+
+Contraintes à respecter :
+
+- les identifiants doivent être uniques ;
+- les clés étrangères doivent toujours référencer des lignes existantes ;
+- une adresse email doit contenir un @ et un point ;
+- le nombre de places d'un véhicule doit être compris entre 1 et 9 ;
+- le nombre de places proposées doit être compris entre 1 et 9 ;
+- le prix d'un trajet doit être positif ou nul ;
+- le statut d'un trajet doit être parmi : 'prevu', 'termine', 'annule' ;
+- le statut d'une réservation doit être parmi : 'en_attente', 'confirmee', 'annulee' ;
+- une réservation doit concerner au moins une place ;
+- une note doit être comprise entre 1 et 5 ;
+- un utilisateur ne doit jamais s'évaluer lui-même ;
+- le véhicule utilisé pour un trajet doit appartenir au conducteur de ce trajet ;
+- un conducteur ne doit pas réserver son propre trajet ;
+- les évaluations doivent concerner des utilisateurs ayant réellement participé au même trajet ;
+- les commentaires doivent rester courts car le champ est limité à VARCHAR(50).
+
+Les données doivent être réalistes pour une plateforme française de covoiturage.
+
+Génère environ :
+- 15 utilisateurs ;
+- 8 véhicules ;
+- 10 trajets ;
+- plusieurs étapes intermédiaires ;
+- au moins 20 réservations ;
+- au moins 15 évaluations.
+
+Retourne uniquement les requêtes SQL INSERT INTO, dans un ordre permettant de respecter les clés étrangères.
