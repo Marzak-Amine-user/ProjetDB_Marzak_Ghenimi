@@ -551,6 +551,7 @@ Ces contraintes seront étudiées lors des étapes suivantes du projet.
 
 # 12. MCD
 
+![MCD de la plateforme de covoiturage](Mini-projet_pt1.png)
 Le MCD a été réalisé avec **Looping**.
 
 L'image du modèle est disponible dans le dépôt du projet.
